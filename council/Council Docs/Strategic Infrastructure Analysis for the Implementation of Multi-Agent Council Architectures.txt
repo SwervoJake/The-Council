@@ -1,0 +1,79 @@
+﻿Strategic Infrastructure Analysis: The Adaptive Kaizen Decision Engine
+This document defines the transition of the "Agent Council" from a purely philosophical framework into an Adaptive Decision Engine. By grounding the cognitive diversity of Neo, Bruce, Cena, Luffy, and the Professor in a formal weighted governance model and an evolving memory system, this design moves from 80% to 95% production readiness.
+1. The Adaptive Council: Personas & Constraints
+Each agent maintains its philosophical language but operates under new "Elasticity Rules" to prevent ideological deadlocks.
+
+
+Agent
+	Philosophy
+	Operational Upgrade
+	Key Mandate
+	Neo (Architect)
+	Mathematical Determinism
+	EV Optimization: Replaces 95% certainty rule with Expected Value (  ).1
+	Optimize for highest EV, not absolute predictability.
+	Bruce (Strategist)
+	Defensive Preservationism
+	Constructive Frugality: If rejecting a plan due to risk, Bruce must propose a cheaper alternative.
+	Protect the "Margin of Safety" without being purely obstructive.
+	Cena (Guardian)
+	Biological Vitalism
+	Capacity Modeling: Tracks Sleep Debt, Cognitive Bandwidth, and Recovery Score.
+	Optimize for human capacity, not just habit load.
+	Luffy (Explorer)
+	Sovereign Existentialism
+	Strategic Randomness: Stress-tests systems by identifying "Sacred Cows" to ignore.
+	Identify one constraint to disrupt in every session.
+	Professor (Chair)
+	Pragmatic Utilitarianism
+	Tie-Breaker Authority: Final decision power after 2 rounds of critique.3
+	Resolve conflict via weighted compatibility scores.
+	2. Decision Protocol Layer: Weighted Governance
+To convert abstract deliberation into executable actions, the Professor calculates a Decision Score (  ) for every proposal.
+  
+
+Execution Rules:
+* Threshold: A plan is executed only if   .
+* Elasticity: Agents may relax their philosophical constraints if    other agents converge on a solution.
+* Hallucination Arbitration: If agents disagree factually, the Professor invokes "External Verification Mode," requiring citations or reproducible reasoning; unsupported claims receive a confidence penalty.
+3. Memory Evolution: The Learning Organism
+The engine utilizes ReasoningBank via Agentic Flow to move from simple logging to "institutional wisdom."
+Memory Stratification Directory
+Memory is no longer a flat file but a stratified system:
+   * /episodic: Raw decision logs and outcomes.
+   * /principles: Universal rules learned from success.
+   * /anti_patterns: Strategies that repeatedly fail.
+   * /heuristics: Shortcuts discovered for high-friction tasks.
+The Periodic Meta-Review
+Every week, the Professor runs a background task to:
+   1. Extract the last 20 decisions.
+   2. Compare predicted success (Neo/Luffy) vs. real-world outcomes.
+   3. Dynamic Weighting: Automatically adjust agent coefficients based on accuracy (e.g., if Cena's burnout warnings are 90% correct, her weighting increases).
+4. Multi-Speed PDCA Workflow
+The Kaizen process is split into two cycle speeds to compound gains faster.
+   * Macro-PDCA (Weekly): Strategic review of personal development trajectories led by Bruce and the Professor.
+   * Micro-PDCA (Per Session): Neo performs an "Execution Reflection" after every coding or planning task to identify friction or automation opportunities.
+5. Cost-Optimized Complexity Routing
+Instead of fixed model assignments, the engine uses Semantic Tension (  ) to trigger premium reasoning escalation. 1
+   * Low Tension (  ): Run all agents on DeepSeek R1 or Gemini 2.0 Flash for maximum cost efficiency ($0.55/1M tokens).5
+   * High Tension (  ): Escalate the clashing agents to Claude 3.5 Sonnet to resolve nuanced logical or ethical conflicts.
+6. Human Interface Layer: The Cognitive Load Governor
+To prevent "Council Overwhelm," the Professor compresses all deliberation into a high-density, actionable format for the user:
+      1. Top 3 Actionable Decisions: Direct next steps for the project.
+      2. One Experiment: A "Luffy-led" wildcard to test.
+      3. One Habit Adjustment: A "Cena-led" sustainability tweak.
+7. The Shadow Analyst (Monthly Evolution)
+An invisible, non-persona process runs once a month to detect "Agent Drift." It identifies if the system is becoming too biased toward one worldview (e.g., too defensive because of Bruce) and recommends prompt updates to restore philosophical balance.
+________________
+Implementation Summary for Cursor
+      1. Rules Folder: Place specific .mdc files in .cursor/rules for Neo (EV rules), Bruce (Alternative requirement), and Cena (Capacity metrics).
+      2. State Management: Use Supabase for the stratified /memory directory to allow agents to query past heuristics during reasoning. 6
+      3. Orchestration: Trigger the council via npx agentic-flow --agent parallel-council --optimize to utilize the Decision Protocol Layer and complexity routing automatically.
+Works cited
+      1. Cut-through on LLM agents - Scouts by Yutori, accessed February 26, 2026, https://scouts.yutori.com/52e5b0a3-a0ec-422d-98e8-727289698c49
+      2. Deploy MCP servers in AgentCore Runtime - Amazon Bedrock ..., accessed February 26, 2026, https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-mcp.html
+      3. The John West Principle: Why Rejection Defines Intelligence - Leverage AI for your business, accessed February 26, 2026, https://leverageai.com.au/wp-content/media/Discovery_Accelerators_The_Path_to_AGI_Through_Visible_Reasoning_Systems_ebook.html
+      4. Vercel | Works With Supabase, accessed February 26, 2026, https://supabase.com/partners/integrations/vercel
+      5. # AI Council Infrastructure.txt
+      6. Real-Time Collaboration Tools: Supabase vs. Firebase - Propelius Technologies, accessed February 26, 2026, https://propelius.tech/blogs/real-time-collaboration-tools-supabase-vs-firebase/
+      7. Firebase vs Supabase in 2025: Which one actually scales with you? - DEV Community, accessed February 26, 2026, https://dev.to/dev_tips/firebase-vs-supabase-in-2025-which-one-actually-scales-with-you-2374

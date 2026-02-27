@@ -1,0 +1,9 @@
+{
+  "council_name": "Adaptive Kaizen Decision Engine",
+  "version": "1.0",
+  "agents": ["professor", "neo", "bruce", "cena", "luffy"],
+  "default_agent": "professor",
+  "decision_threshold": 0.7,
+  "power_tier": 1,
+  "tier_description": "Advisory Only — reasoning & recommendation. No system commands, no automation."
+}

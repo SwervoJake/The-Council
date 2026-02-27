@@ -1,0 +1,472 @@
+# Recall
+
+Recall is a persistent memory system for AI agents, enabling them to capture, store, and retrieve experiential knowledge (lore) across sessions. Built as a library infrastructure, Recall allows AI coding assistants like Claude Code and Cursor to learn from past experiences instead of starting fresh every time. .
+
+The core functionality revolves around three operations: recording new insights during work, querying for relevant knowledge before starting tasks, and providing feedback to improve future recommendations. Recall supports multiple isolated knowledge stores for different projects or teams, semantic similarity search using embeddings, and confidence scoring that adjusts based on user feedback. 
+
+### Creating a Client
+
+Create a Recall client to interact with the local lore store. The client handles database connections, session tracking, and optional Engram synchronization.
+
+```go
+package main
+
+import (
+    "log"
+    "github.com/hyperengineering/recall"
+)
+
+func main() {
+    // Basic offline-only configuration
+    client, err := recall.New(recall.Config{
+        LocalPath: "./data/lore.db",
+    })
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer client.Close()
+
+    // Configuration with Engram sync enabled
+    clientWithSync, err := recall.New(recall.Config{
+        LocalPath:    "./data/lore.db",
+        Store:        "my-project",
+        EngramURL:    "https://engram.example.com",
+        APIKey:       "your-api-key",
+        SourceID:     "my-app",
+        AutoSync:     true,
+    })
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer clientWithSync.Close()
+
+    // Using environment variables
+    cfg := recall.ConfigFromEnv() // Reads RECALL_DB_PATH, ENGRAM_URL, etc.
+    cfg = cfg.WithDefaults()      // Apply sensible defaults
+
+    clientFromEnv, err := recall.New(cfg)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer clientFromEnv.Close()
+}
+```
+
+### Recording Lore
+
+Capture new insights during implementation. Each lore entry has content, a category, optional context, and confidence score.
+
+```go
+package main
+
+import (
+    "fmt"
+    "log"
+    "github.com/hyperengineering/recall"
+)
+
+func main() {
+    client, _ := recall.New(recall.Config{LocalPath: "./data/lore.db"})
+    defer client.Close()
+
+    // Record with required fields only
+    lore, err := client.Record(
+        "Queue consumers benefit from idempotency checks to handle redelivered messages",
+        recall.CategoryPatternOutcome,
+    )
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("Recorded lore ID: %s\n", lore.ID)
+
+    // Record with optional context and confidence
+    lore2, err := client.Record(
+        "ORM generates N+1 queries for belongs_to relationships unless eager loading is configured",
+        recall.CategoryDependencyBehavior,
+        recall.WithContext("performance-investigation-story-3.2"),
+        recall.WithConfidence(0.8), // High confidence - validated finding
+    )
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("Recorded: %s with confidence %.2f\n", lore2.ID, lore2.Confidence)
+
+    // Available categories:
+    // - recall.CategoryArchitecturalDecision  - System-level design choices
+    // - recall.CategoryPatternOutcome         - Results of applying patterns
+    // - recall.CategoryInterfaceLesson        - API/contract design insights
+    // - recall.CategoryEdgeCaseDiscovery      - Unexpected behaviors found
+    // - recall.CategoryImplementationFriction - Design-to-code difficulties
+    // - recall.CategoryTestingStrategy        - Testing approach insights
+    // - recall.CategoryDependencyBehavior     - Library/framework gotchas
+    // - recall.CategoryPerformanceInsight     - Performance characteristics
+}
+```
+
+### Querying Lore
+
+Search for relevant knowledge before starting work. Results include session references (L1, L2, etc.) for feedback.
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+    "github.com/hyperengineering/recall"
+)
+
+func main() {
+    client, _ := recall.New(recall.Config{LocalPath: "./data/lore.db"})
+    defer client.Close()
+
+    ctx := context.Background()
+    minConfidence := 0.5
+
+    // Basic query
+    result, err := client.Query(ctx, recall.QueryParams{
+        Query:         "implementing message consumers",
+        K:             5,                    // Return top 5 results
+        MinConfidence: &minConfidence,      // Filter by confidence
+    })
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fmt.Printf("Found %d matching entries:\n", len(result.Lore))
+    for _, lore := range result.Lore {
+        // Get session reference for this lore (for feedback later)
+        ref := ""
+        for r, id := range result.SessionRefs {
+            if id == lore.ID {
+                ref = r
+                break
+            }
+        }
+        fmt.Printf("  [%s] %s: %s (confidence: %.2f)\n",
+            ref, lore.Category, lore.Content[:50]+"...", lore.Confidence)
+    }
+
+    // Query filtered by categories
+    result2, err := client.Query(ctx, recall.QueryParams{
+        Query: "database performance",
+        K:     10,
+        Categories: []recall.Category{
+            recall.CategoryPerformanceInsight,
+            recall.CategoryDependencyBehavior,
+        },
+    })
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("Found %d performance-related entries\n", len(result2.Lore))
+}
+```
+
+### Providing Feedback
+
+Mark which lore helped (or didn't) to improve future recommendations. Feedback adjusts confidence scores.
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+    "github.com/hyperengineering/recall"
+)
+
+func main() {
+    client, _ := recall.New(recall.Config{LocalPath: "./data/lore.db"})
+    defer client.Close()
+
+    ctx := context.Background()
+
+    // Single-entry feedback using session reference
+    // Feedback types: recall.Helpful (+0.08), recall.Incorrect (-0.15), recall.NotRelevant (no change)
+    updatedLore, err := client.Feedback("L1", recall.Helpful)
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("Updated confidence: %.2f\n", updatedLore.Confidence)
+
+    // Single-entry feedback using direct lore ID
+    updatedLore2, err := client.Feedback("01HQ7XGVK9RJZM5N8YQWP3TF6D", recall.Incorrect)
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("Marked incorrect, new confidence: %.2f\n", updatedLore2.Confidence)
+
+    // Batch feedback (deprecated, but still available)
+    batchResult, err := client.FeedbackBatch(ctx, recall.FeedbackParams{
+        Helpful:     []string{"L1", "L3"},  // These were useful
+        NotRelevant: []string{"L2"},         // Didn't apply to this context
+        Incorrect:   []string{"L4"},         // Wrong or misleading
+    })
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    for _, update := range batchResult.Updated {
+        fmt.Printf("Updated %s: %.2f -> %.2f\n", update.ID[:8], update.Previous, update.Current)
+    }
+    if len(batchResult.NotFound) > 0 {
+        fmt.Printf("Not found: %v\n", batchResult.NotFound)
+    }
+}
+```
+
+### Synchronization with Engram
+
+Sync local lore with Engram central service for team sharing.
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+    "github.com/hyperengineering/recall"
+)
+
+func main() {
+    client, _ := recall.New(recall.Config{
+        LocalPath: "./data/lore.db",
+        EngramURL: "https://engram.example.com",
+        APIKey:    "your-api-key",
+        AutoSync:  false, // Manual sync control
+    })
+    defer client.Close()
+
+    ctx := context.Background()
+
+    // Push local changes to Engram
+    if err := client.SyncPush(ctx); err != nil {
+        log.Printf("Push failed: %v", err)
+    }
+
+    // Pull updates from Engram (incremental)
+    if err := client.SyncDelta(ctx); err != nil {
+        log.Printf("Delta sync failed: %v", err)
+    }
+
+    // Full bootstrap - download complete snapshot from Engram
+    if err := client.Bootstrap(ctx); err != nil {
+        log.Printf("Bootstrap failed: %v", err)
+    }
+
+    // Reinitialize database from Engram (replaces local data)
+    result, err := client.Reinitialize(ctx, recall.ReinitOptions{
+        Force:      false, // Require confirmation
+        AllowEmpty: true,  // Allow empty DB if Engram unreachable
+    })
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("Reinitialized from %s with %d lore entries\n", result.Source, result.LoreCount)
+}
+```
+
+### Store Statistics and Health
+
+Check store statistics and system health.
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+    "github.com/hyperengineering/recall"
+)
+
+func main() {
+    client, _ := recall.New(recall.Config{LocalPath: "./data/lore.db"})
+    defer client.Close()
+
+    // Get store statistics
+    stats, err := client.Stats()
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("Lore count: %d\n", stats.LoreCount)
+    fmt.Printf("Pending sync: %d\n", stats.PendingSync)
+    fmt.Printf("Last sync: %s\n", stats.LastSync.Format("2006-01-02 15:04:05"))
+    fmt.Printf("Schema version: %s\n", stats.SchemaVersion)
+
+    // Get session lore (what was surfaced this session)
+    sessionLore := client.GetSessionLore()
+    fmt.Printf("\nSession lore (%d entries):\n", len(sessionLore))
+    for _, sl := range sessionLore {
+        fmt.Printf("  %s: %s (%.2f)\n", sl.SessionRef, sl.Content, sl.Confidence)
+    }
+
+    // Health check
+    ctx := context.Background()
+    health := client.HealthCheck(ctx)
+    fmt.Printf("\nHealth status:\n")
+    fmt.Printf("  Healthy: %v\n", health.Healthy)
+    fmt.Printf("  Store OK: %v\n", health.StoreOK)
+    fmt.Printf("  Engram reachable: %v\n", health.EngramReachable)
+    if health.Error != "" {
+        fmt.Printf("  Error: %s\n", health.Error)
+    }
+}
+```
+
+## CLI Usage
+
+### Recording Insights
+
+```bash
+# Record basic lore
+recall record --content "Event sourcing overkill for simple CRUD" --category ARCHITECTURAL_DECISION
+
+# Record with context and confidence
+recall record \
+  --content "SQLite WAL mode improves concurrent reads 10x" \
+  --category PERFORMANCE_INSIGHT \
+  --context "story-4.2-database-optimization" \
+  --confidence 0.8
+
+# Record to a specific store
+recall record --content "API rate limits are 1000/hour" \
+  --category DEPENDENCY_BEHAVIOR \
+  --store my-project
+```
+
+### Querying Knowledge
+
+```bash
+# Basic query
+recall query "database performance patterns"
+
+# Query with filters
+recall query "message queue consumers" --top 10 --min-confidence 0.6
+
+# Query specific categories
+recall query "testing strategies" --category TESTING_STRATEGY,PATTERN_OUTCOME
+
+# Query with JSON output
+recall query "error handling" --json
+
+# Query a specific store
+recall query "authentication" --store my-project
+```
+
+### Providing Feedback
+
+```bash
+# Single item feedback
+recall feedback --id L1 --type helpful
+recall feedback --id L2 --type incorrect
+recall feedback --id L3 --type not_relevant
+
+# Batch feedback
+recall feedback --helpful L1,L2 --incorrect L3 --not-relevant L4
+```
+
+### Sync Operations
+
+```bash
+# Push local changes to Engram
+recall sync push
+
+# Download full snapshot from Engram
+recall sync bootstrap
+
+# Reinitialize database from Engram
+recall sync --reinit
+recall sync --reinit --force  # Skip confirmation
+
+
+### Store Management
+
+```bash
+# List local stores
+recall store list
+
+# List remote stores from Engram
+recall store list --remote
+
+# Create a new store
+recall store create my-project --description "My project knowledge base"
+
+# Get store info
+recall store info my-project
+
+# Export store to JSON
+recall store export my-project -o backup.json
+
+# Export to SQLite
+recall store export my-project -o backup.db --format sqlite
+
+# Import from backup
+recall store import my-project -i backup.json
+
+# Import with merge strategy
+recall store import my-project -i backup.json --merge-strategy skip    # Skip existing
+recall store import my-project -i backup.json --merge-strategy replace # Replace existing
+
+# Dry-run import (preview changes)
+recall store import my-project -i backup.json --dry-run
+
+# Delete a store
+recall store delete old-project --confirm --force
+```
+
+### MCP Tools
+
+The MCP server exposes six tools:
+
+- `recall_query` - Search for relevant lore before starting work
+- `recall_record` - Capture insights during implementation
+- `recall_feedback` - Mark what helped (or didn't)
+- `recall_sync` - Push/pull with Engram for team sharing
+- `recall_store_list` - List available knowledge stores
+- `recall_store_info` - Get store details and statistics
+
+### recall_query Tool
+
+```json
+{
+  "query": "error handling patterns",
+  "k": 5,
+  "min_confidence": 0.6,
+  "categories": ["PATTERN_OUTCOME", "INTERFACE_LESSON"],
+  "store": "my-project"
+}
+```
+
+### recall_record Tool
+
+```json
+{
+  "content": "SQLite WAL mode improves concurrent read performance significantly",
+  "category": "PERFORMANCE_INSIGHT",
+  "context": "story-4.2-database-optimization",
+  "confidence": 0.8,
+  "store": "my-project"
+}
+```
+
+### recall_feedback Tool
+
+```json
+{
+  "helpful": ["L1", "L3"],
+  "not_relevant": ["L2"],
+  "incorrect": ["L4"]
+}
+```
+
+
+## Summary
+
+Recall provides a complete persistent memory solution for AI agents, enabling them to learn from past experiences across sessions. The primary use cases include: capturing architectural decisions and code patterns during development, querying relevant knowledge before starting new tasks, and providing feedback to refine the quality of stored insights over time. The confidence scoring system ensures that validated knowledge surfaces more readily while unvalidated hypotheses fade.
+
+Integration patterns span from direct Go library embedding for custom agents, to CLI usage for scripting and automation, to MCP server mode for seamless integration with AI coding assistants like Claude Code. The multi-store architecture supports isolated knowledge bases for different projects or teams, while optional Engram synchronization enables team-wide knowledge sharing. Whether used offline for personal productivity or synced across an organization, Recall transforms ephemeral AI insights into persistent, reusable knowledge.

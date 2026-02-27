@@ -1,0 +1,627 @@
+# Agentic Flow - Production-Ready AI Agent Orchestration Platform
+
+Agentic Flow is a comprehensive AI agent orchestration platform featuring 66 specialized agents, 213 MCP tools, ReasoningBank learning memory, and autonomous multi-agent swarms. Built on Claude Agent SDK, it provides intelligent model routing, ultra-fast local code transformations, persistent learning memory, distributed consensus protocols, and cloud-based federation for ephemeral agents. The framework gets smarter and faster with every execution through adaptive learning patterns and performance optimization.
+
+The platform uniquely combines Agent Booster (352x faster code operations with $0 cost), ReasoningBank (persistent learning memory with 46% faster execution), AgentDB v2 (150x faster RuVector-powered graph database), Multi-Model Router (85-99% cost savings across 100+ LLMs), QUIC Transport (50-70% faster agent communication), and Federation Hub (ephemeral agents with persistent cross-agent memory). With built-in billing systems, Kubernetes GitOps controllers, healthcare AI compliance (HIPAA), and native Rust/WASM performance optimizations, it provides enterprise-grade infrastructure for autonomous multi-agent systems at any scale.
+
+## Core Agent Execution API
+
+### Run an Agent with Task
+
+Execute specialized agents with automatic optimization and model selection:
+
+```bash
+# Execute coder agent with Claude Sonnet (default)
+npx agentic-flow \
+  --agent coder \
+  --task "Build a REST API with JWT authentication and rate limiting"
+
+# Auto-optimize model selection for cost savings (85-99% reduction)
+export OPENROUTER_API_KEY=sk-or-v1-...
+npx agentic-flow \
+  --agent coder \
+  --task "Implement payment webhook handler with Stripe" \
+  --optimize \
+  --priority cost
+
+# Use specific model with real-time streaming
+npx agentic-flow \
+  --agent reviewer \
+  --task "Security audit of authentication system" \
+  --model "anthropic/claude-sonnet-4" \
+  --stream
+
+# Research agent with web access (101 MCP tools)
+npx agentic-flow \
+  --agent researcher \
+  --task "Analyze microservices architecture trends in 2025 with code examples"
+
+# Mobile development with specialized agent
+npx agentic-flow \
+  --agent mobile-dev \
+  --task "Create React Native login screen with biometric authentication"
+```
+
+### Programmatic Agent Execution
+
+Execute agents programmatically with full control:
+
+```javascript
+import { claudeAgent } from 'agentic-flow';
+import { getAgent } from 'agentic-flow/utils/agentLoader';
+
+// Load agent configuration
+const coderAgent = getAgent('coder');
+
+// Stream handler for real-time output
+const streamHandler = (chunk) => {
+  process.stdout.write(chunk);
+};
+
+// Execute with Claude Agent SDK
+const result = await claudeAgent(
+  coderAgent,
+  "Build GraphQL API with subscriptions and caching",
+  streamHandler,
+  "anthropic/claude-sonnet-4" // Optional model override
+);
+
+console.log(`Output: ${result.output}`);
+console.log(`Tokens: ${result.tokens}`);
+
+// Multi-agent parallel execution
+const [research, review, data] = await Promise.all([
+  claudeAgent(getAgent('researcher'), "Analyze payment gateway security"),
+  claudeAgent(getAgent('reviewer'), "Review authentication code quality"),
+  claudeAgent(getAgent('ml-developer'), "Build fraud detection model")
+]);
+
+console.log('All agents completed:', {
+  research: research.output,
+  review: review.output,
+  model: data.output
+});
+```
+
+## Model Optimization & Cost Reduction
+
+### Multi-Model Router with Intelligent Selection
+
+Automatically select optimal models across 100+ LLMs with 85-99% cost savings:
+
+```javascript
+import { ModelRouter } from 'agentic-flow/router';
+
+const router = new ModelRouter();
+
+// Auto-select cheapest model (DeepSeek R1: $0.55/$2.19 per 1M tokens)
+const response = await router.chat({
+  model: 'auto',
+  priority: 'cost',  // Options: 'cost', 'quality', 'speed', 'balanced'
+  messages: [
+    { role: 'user', content: 'Review this code for security issues:\n\n' + code }
+  ],
+  maxCost: 0.001  // Optional budget constraint
+});
+
+console.log(`Model: ${response.metadata.model}`);
+console.log(`Cost: $${response.metadata.cost}`);
+console.log(`Tokens: ${response.metadata.tokens}`);
+console.log(`Response: ${response.choices[0].message.content}`);
+
+// Multi-provider fallback with quality optimization
+const qualityResponse = await router.chat({
+  model: 'auto',
+  priority: 'quality',  // Selects Claude Sonnet 4.5 or GPT-4o
+  messages: [
+    { role: 'user', content: 'Design microservices architecture for e-commerce platform' }
+  ]
+});
+
+// Speed-optimized for simple tasks (Gemini 2.5 Flash: 0.07/$0.30)
+const fastResponse = await router.chat({
+  model: 'auto',
+  priority: 'speed',
+  messages: [
+    { role: 'user', content: 'Generate 10 unit test cases for login function' }
+  ]
+});
+
+// Cost savings example: 100 code reviews/day
+// Without optimization: 100 × $0.08 (Claude) = $240/month
+// With optimization: 100 × $0.012 (DeepSeek R1) = $36/month
+// Savings: $204/month (85% reduction)
+```
+
+## Agent Booster - 352x Faster Code Operations
+
+### Automatic Code Transformation Acceleration
+
+Agent Booster automatically detects code editing tasks and applies 352x speedup with $0 cost:
+
+```javascript
+import { AgentBooster } from 'agentic-flow/agent-booster';
+
+// Initialize booster (auto-detects Rust/WASM availability)
+const booster = new AgentBooster({
+  fallbackToJs: true,  // Use JS if WASM unavailable
+  enableCache: true
+});
+
+// Single code edit: 352ms → 1ms (351ms saved)
+const edit1 = await booster.applyEdit({
+  filePath: './src/api/users.ts',
+  operation: 'replace',
+  oldCode: 'function getUser(id) {',
+  newCode: 'async function getUser(id: string): Promise<User> {'
+});
+
+// Batch edits: 100 files in 0.1 seconds (vs 35 seconds)
+const batchEdits = await booster.applyBatch([
+  { file: './src/auth/login.ts', old: 'var ', new: 'const ' },
+  { file: './src/auth/register.ts', old: 'var ', new: 'const ' },
+  // ... 98 more files
+]);
+
+console.log(`Processed ${batchEdits.length} edits in ${batchEdits.duration}ms`);
+console.log(`Cost: $0 (100% free)`);
+console.log(`Traditional: ${batchEdits.length * 352}ms, $${batchEdits.length * 0.01}`);
+
+// Cost comparison for 1000 files migration:
+// Traditional: 5.87 minutes, $10
+// Agent Booster: 1 second, $0
+// Improvement: 350x faster, $10 saved
+```
+
+## ReasoningBank - Learning Memory System
+
+### Persistent Memory with Adaptive Learning
+
+ReasoningBank provides closed-loop learning memory that improves agent performance by 46% through pattern recognition:
+
+```javascript
+import * as reasoningbank from 'agentic-flow/reasoningbank';
+
+// Initialize ReasoningBank with AgentDB backend (150x faster)
+await reasoningbank.initialize();
+
+// Store successful pattern
+await reasoningbank.storeMemory(
+  'api_authentication_pattern',
+  {
+    strategy: 'JWT with refresh tokens',
+    implementation: 'Express middleware + Redis session store',
+    testCoverage: 95,
+    securityScore: 98
+  },
+  {
+    namespace: 'api_patterns',
+    domain: 'authentication',
+    tags: ['jwt', 'security', 'express']
+  }
+);
+
+// Retrieve relevant memories for new task
+const memories = await reasoningbank.queryMemories(
+  'implement user authentication with JWT',
+  {
+    namespace: 'api_patterns',
+    domain: 'authentication',
+    k: 5  // Top 5 relevant patterns
+  }
+);
+
+console.log(`Found ${memories.length} relevant patterns:`);
+memories.forEach(m => {
+  console.log(`- ${m.pattern} (confidence: ${m.confidence})`);
+});
+
+// Run task with learning
+const result = await reasoningbank.runTask({
+  taskId: 'auth-implementation-001',
+  agentId: 'coder',
+  query: 'implement JWT authentication with refresh tokens',
+  domain: 'authentication',
+  executeFn: async (memories) => {
+    // Agent executes task using retrieved patterns
+    const implementation = await generateCode(memories);
+    return { code: implementation, tests: generateTests(implementation) };
+  }
+});
+
+console.log(`Verdict: ${result.verdict.label} (${result.verdict.confidence})`);
+console.log(`Used ${result.usedMemories.length} memories`);
+console.log(`Stored ${result.newMemories.length} new patterns`);
+
+// Performance improvement:
+// First attempt: 70% success rate, no learning
+// After 10 tasks: 90%+ success, 46% faster execution
+```
+
+## AgentDB v2 - Graph Database with Vector Search
+
+### ReflexionMemory for Experience-Based Learning
+
+Store and retrieve agent experiences with semantic search and causal reasoning:
+
+```javascript
+import { ReflexionMemory } from 'agentic-flow/agentdb';
+
+// Initialize AgentDB v2 with RuVector backend
+const memory = new ReflexionMemory({
+  dimension: 768,
+  preset: 'medium',  // Options: 'low', 'medium', 'high', 'extreme'
+  backend: 'ruvector'  // 150x faster than SQLite
+});
+
+await memory.initialize();
+
+// Store reflexion trajectory (experience from task execution)
+await memory.storeReflexion({
+  sessionId: 'session-123',
+  taskName: 'implement_authentication',
+  score: 0.95,  // Success score
+  success: true,
+  trajectory: {
+    steps: [
+      { action: 'analyze_requirements', result: 'JWT with refresh tokens' },
+      { action: 'design_schema', result: 'User table with password hash' },
+      { action: 'implement_middleware', result: 'Express auth middleware' },
+      { action: 'write_tests', result: '95% coverage' }
+    ],
+    verdict: 'successful',
+    learnings: 'Use bcrypt for hashing, Redis for session store'
+  }
+});
+
+// Retrieve similar experiences with context synthesis
+const similarTasks = await memory.retrieveReflexion(
+  'implement OAuth2 authentication',
+  {
+    synthesizeContext: true,  // Combine multiple memories
+    topK: 3
+  }
+);
+
+console.log(`Found ${similarTasks.length} similar experiences:`);
+similarTasks.forEach(t => {
+  console.log(`- ${t.taskName} (score: ${t.score}, relevance: ${t.similarity})`);
+  console.log(`  Learnings: ${t.trajectory.learnings}`);
+});
+
+// Performance: 150x faster than SQLite, sub-ms latency
+```
+
+### SkillLibrary for Reusable Patterns
+
+Build and search library of proven agent skills:
+
+```javascript
+import { SkillLibrary } from 'agentic-flow/agentdb';
+
+const skills = new SkillLibrary({
+  dimension: 768,
+  backend: 'ruvector'
+});
+
+await skills.initialize();
+
+// Store skill with embedding
+await skills.storeSkill({
+  skillId: 'auth-jwt-express',
+  name: 'JWT Authentication with Express',
+  description: 'Implement JWT-based authentication middleware for Express APIs',
+  code: `
+    const jwt = require('jsonwebtoken');
+    const auth = (req, res, next) => {
+      const token = req.header('Authorization')?.replace('Bearer ', '');
+      if (!token) return res.status(401).send('Access denied');
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+      } catch (err) {
+        res.status(400).send('Invalid token');
+      }
+    };
+  `,
+  tags: ['authentication', 'jwt', 'express', 'middleware'],
+  successRate: 0.95,
+  usageCount: 42
+});
+
+// Search skills by semantic similarity
+const relevantSkills = await skills.searchSkills(
+  'authenticate API requests with tokens',
+  { topK: 10 }
+);
+
+console.log(`Found ${relevantSkills.length} relevant skills:`);
+relevantSkills.forEach(s => {
+  console.log(`- ${s.name} (success: ${s.successRate}, used: ${s.usageCount}x)`);
+  console.log(`  ${s.description}`);
+});
+
+// Apply skill to new task
+const skill = relevantSkills[0];
+const appliedCode = skill.code.replace('process.env.JWT_SECRET', 'config.jwtSecret');
+```
+
+## QUIC Transport - Ultra-Low Latency Communication
+
+### Agent Communication with 50-70% Lower Latency
+
+QUIC protocol provides 0-RTT instant reconnection and 100+ concurrent streams:
+
+```javascript
+import { QuicTransport } from 'agentic-flow/transport/quic';
+
+// Start QUIC server (CLI)
+// npx agentic-flow quic --port 4433
+
+// Create QUIC transport client
+const transport = new QuicTransport({
+  host: 'localhost',
+  port: 4433,
+  maxConcurrentStreams: 100,  // 100+ parallel agent messages
+  enableMigration: true  // Survives WiFi→cellular changes
+});
+
+// Connect with 0-RTT (instant reconnection)
+await transport.connect();
+
+// Send agent task with minimal latency
+await transport.send({
+  type: 'task',
+  agent: 'coder',
+  data: {
+    action: 'refactor',
+    files: ['./src/api/users.ts', './src/api/auth.ts'],
+    pattern: 'async/await'
+  }
+});
+
+// Subscribe to agent responses
+transport.on('message', (msg) => {
+  console.log(`Agent: ${msg.agent}, Status: ${msg.status}`);
+  if (msg.result) {
+    console.log(`Result: ${msg.result}`);
+  }
+});
+
+// Get connection stats
+const stats = transport.getStats();
+console.log(`RTT: ${stats.rttMs}ms`);
+console.log(`Active streams: ${stats.activeStreams}`);
+console.log(`Bytes sent/received: ${stats.bytesSent}/${stats.bytesReceived}`);
+
+// Performance comparison:
+// TCP/HTTP2: 3 round trips, baseline latency
+// QUIC: 0-RTT instant, 50-70% lower latency
+// Use case: 1000 agent tasks = 50-70% faster coordination
+
+await transport.close();
+```
+
+## Billing & Economic System
+
+### Complete Subscription Management
+
+Native TypeScript billing system with 5 tiers and 10 metered resources:
+
+```javascript
+import { BillingSystem } from 'agentic-flow/billing';
+
+// Initialize billing system
+const billing = new BillingSystem({
+  enableMetering: true,
+  enableCoupons: true,
+  enableOverages: true,
+  overageRate: 1.5,  // 150% of base price for overages
+  currency: 'USD',
+  paymentProvider: 'stripe'
+});
+
+// Create subscription with payment
+const { subscription, payment } = await billing.subscribe({
+  userId: 'user123',
+  tier: 'professional',  // free, starter, professional, business, enterprise
+  billingCycle: 'monthly',  // monthly, yearly
+  paymentMethodId: 'pm_123',
+  couponCode: 'LAUNCH25'  // Optional 25% discount
+});
+
+console.log(`Subscription: ${subscription.id}`);
+console.log(`Status: ${subscription.status}`);
+console.log(`Price: $${payment.amount} ${payment.currency}`);
+console.log(`Next billing: ${subscription.currentPeriodEnd}`);
+
+// Record usage (10 metered resources)
+await billing.recordUsage({
+  subscriptionId: subscription.id,
+  userId: 'user123',
+  metric: 'agent_hours',  // agent_hours, api_requests, storage_gb, etc.
+  amount: 10.5,
+  unit: 'hours'
+});
+
+// Check quota before operation
+const canProceed = await billing.checkQuota(
+  subscription.id,
+  'api_requests'
+);
+
+if (!canProceed) {
+  console.log('Quota exceeded - upgrade required');
+}
+
+// Get usage summary
+const usage = await billing.getUsageSummary(subscription.id);
+console.log(`Agent hours: ${usage.agent_hours.used}/${usage.agent_hours.limit}`);
+console.log(`API requests: ${usage.api_requests.used}/${usage.api_requests.limit}`);
+console.log(`Overage charges: $${usage.overageCharges}`);
+
+// Upgrade subscription
+await billing.upgrade(subscription.id, 'business');
+
+// Cancel subscription
+await billing.cancel(subscription.id, false);  // false = at period end
+```
+
+### CLI Billing Operations
+
+Complete billing management from command line:
+
+```bash
+# Create subscription
+npx ajj-billing subscription:create user123 professional monthly pm_123
+
+# Check subscription status
+npx ajj-billing subscription:status sub_456
+
+# Record usage
+npx ajj-billing usage:record sub_456 agent_hours 10.5
+
+# View pricing tiers
+npx ajj-billing pricing:tiers
+
+# Create coupon
+npx ajj-billing coupon:create LAUNCH25 percentage 25
+
+# Validate coupon
+npx ajj-billing coupon:validate LAUNCH25 professional 99.00
+
+# List all commands
+npx ajj-billing help
+```
+
+## Federation Hub - Ephemeral Agents
+
+### Cloud-Based Agent Federation with Persistent Memory
+
+Deploy ephemeral agents (5s-15min lifetime) with persistent cross-agent memory:
+
+```javascript
+import { FederationHub, FederationHubClient } from 'agentic-flow/federation';
+
+// Start federation hub server
+const hub = new FederationHub({
+  port: 8000,
+  maxAgents: 1000,
+  agentTTL: 900000,  // 15 minutes
+  memoryBackend: 'agentdb',  // Persistent memory
+  enableRealtime: true
+});
+
+await hub.start();
+console.log('Federation Hub running on port 8000');
+
+// Client: Spawn ephemeral agent
+const client = new FederationHubClient('http://localhost:8000');
+
+const agent = await client.spawnAgent({
+  type: 'coder',
+  task: 'Implement payment webhook handler',
+  ttl: 300000,  // 5 minutes
+  memory: {
+    namespace: 'payment_integration',
+    shareWith: ['reviewer', 'tester']  // Cross-agent memory
+  }
+});
+
+console.log(`Agent spawned: ${agent.id}`);
+console.log(`Expires: ${new Date(agent.expiresAt)}`);
+
+// Monitor agent status
+const status = await client.getAgentStatus(agent.id);
+console.log(`Status: ${status.state}`);
+console.log(`Progress: ${status.progress}%`);
+
+// Retrieve agent results
+const result = await client.getAgentResult(agent.id);
+console.log(`Output: ${result.output}`);
+console.log(`Memory stored: ${result.memoryKeys.length} keys`);
+
+// Access shared memory from another agent
+const sharedMemory = await client.getSharedMemory('payment_integration');
+console.log(`Shared context: ${sharedMemory.items.length} items`);
+
+// CLI usage
+// npx agentic-flow federation start       # Start hub
+// npx agentic-flow federation spawn       # Spawn agent
+// npx agentic-flow federation stats       # View statistics
+```
+
+## Healthcare AI - HIPAA-Compliant Platform
+
+### Patient Data Sharing with Granular Consent
+
+HIPAA-compliant healthcare AI with patient consent management:
+
+```javascript
+import { DataSharingControls } from 'agentic-flow/consent';
+
+const controls = new DataSharingControls();
+
+// Create patient data sharing policy
+await controls.createPolicy({
+  patientId: 'patient123',
+  allowedProviders: ['dr_smith', 'lab_abc', 'pharmacy_xyz'],
+  dataCategories: ['labs', 'medications', 'vitals', 'diagnoses'],
+  restrictions: [
+    {
+      type: 'time_based',
+      description: 'Only share during business hours',
+      rules: { allowedHours: [9, 17] }
+    },
+    {
+      type: 'purpose_based',
+      description: 'Only for treatment purposes',
+      rules: { allowedPurposes: ['treatment', 'emergency'] }
+    },
+    {
+      type: 'data_category',
+      description: 'Exclude psychiatric records',
+      rules: { excludeCategories: ['psychiatric'] }
+    }
+  ],
+  expirationDate: new Date('2025-12-31'),
+  active: true
+});
+
+// Check if data sharing is allowed
+const result = controls.isDataSharingAllowed(
+  'patient123',
+  'dr_smith',
+  'labs',
+  { purpose: 'treatment', time: new Date() }
+);
+
+if (result.allowed) {
+  console.log('Data sharing allowed');
+  // Proceed with data access
+} else {
+  console.log(`Access denied: ${result.reason}`);
+}
+
+// Audit data access
+const auditLog = await controls.getAuditLog('patient123', {
+  startDate: new Date('2025-01-01'),
+  endDate: new Date()
+});
+
+console.log(`Access attempts: ${auditLog.length}`);
+auditLog.forEach(entry => {
+  console.log(`${entry.timestamp}: ${entry.provider} accessed ${entry.dataCategory}`);
+  console.log(`  Allowed: ${entry.allowed}, Purpose: ${entry.purpose}`);
+});
+
+// Revoke consent
+await controls.revokeConsent('patient123', 'dr_smith', 'medications');
+```
+
+## Multi-Agent Swarm Orchestration
+
+Agentic Flow provides three core orchestration patterns for multi-agent coordination: hierarchical (queen-led with specialized workers), mesh (peer-to-peer with distributed decision-making), and adaptive (dynamic topology switching based on task complexity). Each pattern optimizes for different scenarios - hierarchical excels at complex projects requiring centralized coordination, mesh provides fault-tolerant parallel execution, and adaptive automatically selects the optimal topology through learned performance patterns. The platform achieves 3-5x speedup through self-learning parallel execution and automatic bottleneck detection.
+
+Swarm coordination leverages persistent cross-agent memory via AgentDB, enabling agents to share context, patterns, and learnings across sessions. The system automatically spawns specialized agents (coder, reviewer, tester, architect) based on task requirements, distributes work in parallel, and synthesizes results through intelligent reconciliation. Built-in hooks handle pre-task setup, post-task memory storage, and session management, creating a fully autonomous orchestration layer that improves with each execution. Integration with GitHub (PR management, code review), ReasoningBank (pattern learning), and QUIC transport (ultra-low latency communication) provides production-grade infrastructure for distributed AI systems at any scale.

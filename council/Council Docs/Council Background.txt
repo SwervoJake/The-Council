@@ -1,0 +1,877 @@
+# Vibe Coding V1.2 - AI-Assisted Development Methodology
+
+Vibe Coding is a comprehensive methodology for building games and applications using AI coding assistants like Claude Sonnet 4.5 (via Claude Code) or GPT-5 Codex. The approach emphasizes structured planning, incremental development, and maintaining clean, modular codebases through careful prompt engineering and context management. Rather than letting AI plan autonomously, this methodology places the developer in control of architecture and planning while leveraging AI for implementation.
+
+The framework provides a complete workflow from initial concept to finished product, including tools for managing context through a "memory bank" system, incremental step-by-step implementation with validation tests, and strategies for debugging and recovering from errors. It supports both terminal-based CLI tools and VSCode extensions, with specific guidance on configuration, custom commands, and best practices for maintaining code quality throughout the development process.
+
+## APIs and Key Functions
+
+### Initial Project Setup with `/init` Command
+
+The `/init` command in Claude Code or Codex CLI initializes project-specific rules and guidelines based on your game design document and tech stack. This creates a configuration that guides the AI's behavior throughout development, ensuring modularity and best practices.
+
+```bash
+# Navigate to your project directory
+cd my-game-project
+
+# Create memory bank structure
+mkdir memory-bank
+cd memory-bank
+
+# Create foundational documents (use GPT-5 or Claude to generate content)
+# game-design-document.md - describes game mechanics, objectives, and structure
+# tech-stack.md - recommended technologies and architecture
+# implementation-plan.md - step-by-step implementation instructions
+# progress.md - tracks completed steps (initially empty)
+# architecture.md - documents file purposes and structure (initially empty)
+
+# Return to project root and initialize Claude Code/Codex
+cd ..
+claude  # or: codex
+
+# Run initialization command
+/init
+
+# The AI will read game-design-document.md and tech-stack.md
+# Review generated rules and manually add critical "Always" rules:
+# Example rule to add:
+# Rule: Always read memory-bank/@architecture.md and memory-bank/@game-design-document.md before writing code
+# Trigger: Always
+# Rule: After completing a milestone, update memory-bank/@architecture.md
+# Trigger: After major feature addition
+```
+
+### Incremental Implementation Workflow
+
+The core development workflow involves processing the implementation plan step-by-step, validating each step before proceeding, and maintaining documentation in the memory bank. This ensures consistent quality and prevents the codebase from becoming unmaintainable.
+
+```bash
+# Start Claude Code or Codex in your project directory
+claude  # or: codex
+
+# Step 1: Clarify the implementation plan
+# Prompt:
+Read all the documents in /memory-bank, is implementation-plan.md clear?
+What are your questions to make it 100% clear for you?
+
+# AI will ask 9-10 clarifying questions. Answer them, then:
+# Prompt:
+Edit implementation-plan.md based on my answers to make it clearer for future development.
+
+# Step 2: Begin implementation (use Plan Mode with Shift+Tab in Claude Code)
+# Prompt:
+Read all the documents in /memory-bank, and proceed with Step 1 of the implementation plan.
+I will run the tests. Do not start Step 2 until I validate the tests.
+Once I validate them, open progress.md and document what you did for future developers.
+Then add any architectural insights to architecture.md to explain what each file does.
+
+# Step 3: After validating tests, commit and start fresh context
+git add .
+git commit -m "Completed Step 1 of implementation plan"
+/clear  # or /new to start fresh chat
+
+# Step 4: Continue with next step
+# Prompt:
+Now go through all files in the memory-bank, read progress.md to understand prior work,
+and proceed with Step 2. Do not start Step 3 until I validate the test.
+
+# Repeat this cycle for each step in implementation-plan.md
+```
+
+### Error Recovery with `/rewind` Command
+
+The `/rewind` command in Claude Code rolls back the project to an earlier state when an iteration goes wrong. This is critical for recovering from failed prompts or bugs introduced by AI-generated code.
+
+```bash
+# If a prompt breaks your game or introduces bugs:
+claude
+
+# Use rewind to roll back changes
+/rewind
+
+# Alternatively, if using Git (works with both Claude Code and Codex):
+git log --oneline  # View recent commits
+git reset --hard HEAD~1  # Roll back one commit
+# or
+git reset --hard <commit-hash>  # Roll back to specific commit
+
+# For JavaScript errors, capture console output:
+# 1. Open browser console (F12)
+# 2. Copy error message
+# 3. Paste into Claude Code/Codex
+
+# Example error handling prompt:
+I'm getting this error in the browser console:
+```
+TypeError: Cannot read property 'position' of undefined
+    at Player.update (player.js:45)
+    at GameLoop.tick (game.js:120)
+```
+Please fix this issue and ensure proper null checking.
+
+# Alternative: Use BrowserTools extension for automatic error capture
+# Install: https://browsertools.agentdesk.ai/installation
+```
+
+### Custom Commands for Context Loading
+
+Custom commands allow you to create reusable prompts that load specific context before performing tasks. This is particularly useful for complex codebases where the AI needs deep understanding before making changes.
+
+```bash
+# Create a custom command file: .claude/commands/explain.md
+# Content:
+Do a deep-dive on the code and understand how $arguments works.
+Once you understand it, let me know, and I will provide the task I have for you.
+
+# Usage in Claude Code:
+claude
+
+/explain networking system
+
+# AI will thoroughly analyze the networking code, then respond:
+# "I've analyzed the networking system. It uses WebSockets with a client-server
+# architecture, state synchronization every 50ms, and includes lag compensation.
+# What changes would you like me to make?"
+
+# Then provide your actual task:
+Add support for UDP hole punching to enable peer-to-peer connections
+when both clients are behind NAT.
+```
+
+### Feature Addition Workflow
+
+Adding new features after the base game is complete follows a similar structured approach but focuses on specific enhancements rather than core functionality.
+
+```bash
+# Create a feature-specific implementation document
+# Ask GPT-5 or Claude to generate this based on your requirements
+# Example: feature-post-processing.md
+
+# Content structure:
+## Feature: Post-Processing Effects
+### Step 1: Add bloom effect shader
+- Create shader files for bloom pass
+- Test: Bright areas should glow appropriately
+### Step 2: Implement SSAO (Screen Space Ambient Occlusion)
+- Add SSAO shader pass
+- Test: Objects should have realistic contact shadows
+### Step 3: Add chromatic aberration
+- Implement lens distortion effect
+- Test: Screen edges should show subtle color separation
+
+# Save to memory-bank/feature-post-processing.md
+
+# Implementation:
+claude
+
+# Prompt:
+Read memory-bank/@architecture.md and memory-bank/@feature-post-processing.md.
+Proceed with Step 1. I will validate the test before you continue.
+
+# After each step validation:
+git add .
+git commit -m "Added bloom post-processing effect"
+/clear
+
+# Continue until feature is complete
+```
+
+### Context Management with `/clear` and `/compact`
+
+Managing context windows is crucial for maintaining performance and relevance in long development sessions. Claude Code and Codex provide commands to handle this.
+
+```bash
+claude  # or codex
+
+# After completing several implementation steps, clear context completely:
+/clear
+
+# This starts a fresh conversation. On your next prompt, reload context:
+Read all documents in /memory-bank, especially progress.md to understand
+what has been completed. I'm ready to continue development.
+
+# Alternative: Use /compact to compress conversation history while retaining key information
+/compact
+
+# For high-speed development (skip all permission prompts):
+claude --dangerously-skip-permissions
+# or
+codex --yolo
+
+# Warning: These flags bypass safety checks - use with caution
+```
+
+### Full Codebase Export for Complex Debugging
+
+When deeply stuck, export your entire codebase for analysis by more powerful models or for getting architectural advice.
+
+```bash
+# Option 1: Use RepoPrompt (https://repoprompt.com/)
+# Visit website and drag your project folder
+# Copies entire codebase to clipboard in LLM-friendly format
+
+# Paste into ChatGPT or Claude with prompt:
+Here is my complete game codebase. I'm having an issue where player
+collisions are not being detected properly on the server side, but work
+fine in single-player mode. The collision detection should happen at 60
+ticks per second. Can you identify the issue?
+
+[paste codebase]
+
+# Option 2: Use uithub (https://uithub.com/)
+# Similar tool for exporting repositories
+
+# Option 3: Manual concatenation
+find . -type f \( -name "*.js" -o -name "*.ts" \) \
+  -not -path "*/node_modules/*" \
+  -exec echo "// File: {}" \; \
+  -exec cat {} \; \
+  -exec echo "\n\n" \; > complete-codebase.txt
+
+# Then paste complete-codebase.txt contents to GPT-5 or Claude for analysis
+```
+
+### Voice-Based Development with Superwhisper
+
+For a more natural development experience, use voice commands to interact with AI coding assistants instead of typing.
+
+```bash
+# Install Superwhisper: https://superwhisper.com
+# Configure to work with Claude Code or Codex
+
+# Example voice workflow:
+# 1. Press Superwhisper hotkey
+# 2. Speak naturally:
+
+"Hey Claude, read the memory bank files and look at the player movement code.
+I want to add wall jumping. When the player is touching a wall and presses
+jump, they should bounce off at a 45-degree angle away from the wall.
+Make sure it feels responsive and works with the existing double-jump system."
+
+# 3. AI processes and implements
+# 4. Validate results by running game
+
+# Voice commands for iteration:
+"That wall jump feels too floaty. Increase the horizontal velocity by 50 percent
+and reduce the vertical velocity by 20 percent."
+
+# Superwhisper transcribes -> AI implements -> Test -> Iterate
+```
+
+## Integration and Use Cases
+
+Vibe Coding is primarily used for rapid game development and application prototyping where AI assists with implementation while the developer maintains architectural control. The methodology shines in scenarios requiring iterative development with frequent testing, such as building multiplayer games with complex networking, 3D games with physics engines, or full-stack applications with multiple integrated systems. The memory bank system ensures AI maintains context across development sessions, while the step-by-step validation approach prevents accumulation of bugs and technical debt.
+
+The framework integrates with standard development tools and workflows, including Git for version control, VSCode for editing, and browser developer tools for debugging. For application development (non-game), the workflow adapts by replacing Game Design Documents with Product Requirements Documents and can integrate with prototyping tools like v0, Lovable, or Bolt.new for initial UI/UX work before transitioning to this structured development methodology. The approach scales from solo developers building simple projects to teams working on complex applications, with the memory bank serving as shared context and the implementation plan providing clear task boundaries for parallel work.
+
+This is the Outline for every AI prompt I ask for.
+
+Ensure when giving suggestions for prompts, you follow the below guide :
+
+[Task Name]: <Name of task>
+
+[Objective]: <Clear explanation of what you want the AI to accomplish.>
+- Example: "Generate a REST API endpoint in Python that retrieves all users from a database."
+
+[Input Specifications]: <What inputs the code should accept.>
+- Types, formats, ranges, default values.
+
+[Output Requirements]: <Expected outputs, formats, and types.>
+- Example: "Return JSON array of user objects with fields id, name, email."
+
+[Constraints / Rules]:
+- Language: Python 3.11
+- Framework: FastAPI
+- Coding conventions: PEP8
+- Must handle exceptions
+- Use async functions
+
+[Edge Cases]: <List specific cases that must be handled.>
+- Example: Empty database, null inputs, invalid data types
+
+[Examples / References]:
+- Input: GET /users
+- Output: [{ "id":1, "name":"Alice", "email":"alice@example.com" }, ...]
+
+[Additional Notes]:
+- Any library preferences, performance constraints, or security considerations.
+
+[Deliverables]:
+- Full working code snippet
+- Unit tests covering edge cases
+- Comments explaining logic
+
+(Openclaw Council Overview)
+
+You’re not building a productivity assistant.
+
+You’re building a personal advisory board that can:
+
+• Compound Growth
+• Have Philosophical Advisory Debates (Council Meetings)
+• Improve Habits
+• Design income systems
+• Stay Grounded and Calm
+• Evaluate Choices
+
+And eventually:
+Help you generate money.
+
+This requires structure.
+
+Below is a realistic, OpenClaw-compatible, Ubuntu + Ollama step-by-step setup plan.
+
+PHASE 1 — Define Governance (Before Touching OpenClaw)
+
+Step 1 — Write Your Constitution
+
+Create:
+
+~/.openclaw/council/constitution.md
+
+
+Put this inside:
+
+Purpose
+To drive continuous improvement (Kaizen) across all domains of life while preserving autonomy, coherence, and long-term growth.
+
+Authority Structure
+User is Sovereign.
+Executive Coordinates.
+Agents Advise.
+
+Kaizen Laws
+
+Small compounding improvements.
+
+Max 3 action items per session.
+
+Weekly structured review.
+
+Long-term stability > short-term excitement.
+
+Growth must strengthen both systems and character.
+
+Tone : Calm. Growth-oriented. Balanced. Direct.
+
+Do this manually. No automation.
+
+PHASE 2 — Create Multi-Agent Structure in OpenClaw
+
+You will create real agents in agents.list.
+
+You will NOT simulate them inside one prompt.
+
+Step 2 — Create Workspaces
+mkdir -p ~/.openclaw/workspace-executive
+mkdir -p ~/.openclaw/workspace-builder
+mkdir -p ~/.openclaw/workspace-ascetic
+mkdir -p ~/.openclaw/workspace-gardener
+mkdir -p ~/.openclaw/workspace-engineer
+
+
+Inside Executive workspace:
+
+mkdir -p ~/.openclaw/workspace-executive/shared
+touch ~/.openclaw/workspace-executive/shared/tasks.md
+touch ~/.openclaw/workspace-executive/shared/decisions.md
+touch ~/.openclaw/workspace-executive/shared/weekly_review.md
+
+PHASE 3 — Configure agents.json
+
+Edit your OpenClaw config to include:
+
+agents.list
+
+
+You will create:
+
+executive (default: true)
+
+builder
+
+ascetic
+
+gardener
+
+engineer
+
+Step 3 — Define Executive Agent
+
+Executive:
+
+Workspace: workspace-executive
+
+Sandbox: off
+
+Tools allow:
+
+read
+
+write
+
+apply_patch
+
+sessions tools
+
+Tools deny:
+
+exec
+
+browser
+
+gateway
+
+cron
+
+Purpose:
+Coordinates and synthesizes.
+Cannot run system commands.
+
+Step 4 — Define Builder
+
+Workspace: workspace-builder
+Allow: read, write
+Deny: exec, process, browser
+
+Focus:
+Money, leverage, business analysis.
+
+Step 5 — Define Ascetic
+
+Workspace: workspace-ascetic
+Allow: read, write
+Deny: exec, browser
+
+Focus:
+Habits, discipline, health.
+
+Step 6 — Define Gardener
+
+Workspace: workspace-gardener
+Allow: read, write
+Deny: exec
+
+Focus:
+Sustainability, curiosity, quality of life.
+
+Step 7 — Define Engineer
+
+Workspace: workspace-engineer
+Allow:
+
+read
+
+write
+
+apply_patch
+
+exec
+
+process
+
+Focus:
+Technical refinement, coding, automation realism.
+
+Engineer is the only one allowed to touch system execution.
+
+PHASE 4 — Model Assignment (Ollama Reality)
+
+In OpenClaw models config:
+
+Executive → strongest reasoning model
+Builder → strong reasoning
+Engineer → strong reasoning
+Ascetic → medium
+Gardener → medium
+
+Run sequentially.
+
+Do NOT attempt simultaneous heavy model orchestration unless your hardware supports it.
+
+PHASE 5 — Session Protocol
+
+When you ask:
+
+“Executive, initiate council session.”
+
+Executive must:
+
+Clarify your question
+
+Identify domain (business, health, philosophy, technical, etc.)
+
+Select relevant agents
+
+Query them sequentially
+
+Synthesize
+
+Present:
+
+Diagnosis
+
+Conflicts
+
+1–3 action steps
+
+Long-term implications
+
+Risk warning
+
+No agent writes to shared files without your approval.
+
+PHASE 6 — Weekly Kaizen Ritual
+
+Once per week:
+
+You run:
+
+“Executive, initiate weekly review.”
+
+Executive:
+
+Requests metric snapshot (sleep, study hours, money, etc.)
+
+Identifies trend
+
+Gets short inputs from each agent
+
+Approves max 3 improvements
+
+Logs in weekly_review.md
+
+PHASE 7 — Handling Any Type of Question
+
+You want it to answer:
+
+Should I flip houses?
+Will this chili hurt my stomach?
+
+This is solved by Executive routing.
+
+Example 1 — Flipping Houses
+
+Executive selects:
+Builder (financial model)
+Engineer (execution feasibility)
+Ascetic (time cost discipline)
+Gardener (lifestyle impact)
+
+Then synthesizes.
+
+Example 2 — Chili Question
+
+Executive selects:
+Ascetic (body reaction patterns)
+Gardener (diet sustainability)
+Engineer (ingredients analysis logic)
+
+Builder may not be called.
+
+Flexible routing is key.
+
+PHASE 8 — Money-Making Future
+
+If you want to monetize this system later:
+
+Three realistic paths:
+
+Use it to design businesses.
+
+Use Engineer to help build automation tools.
+
+Refine the council framework and package it as a productivity / self-governance system.
+
+But first:
+It must improve YOUR results.
+
+No product before proof.
+
+PHASE 9 — Long-Term Evolution
+
+After 3 months:
+
+Engineer can:
+
+Add lightweight scripts
+
+Automate weekly report formatting
+
+Add logging metrics
+
+After 6–12 months:
+
+You may:
+
+Add market research workflows
+
+Build AI-assisted deal analysis tools
+
+Develop income automation experiments
+
+PHASE 10 — Guardrails
+
+Never allow:
+
+• Autonomous financial execution
+• Unapproved file modification
+• Over-correction after one bad week
+• Grind identity takeover
+
+Executive must remain calm and structured.
+
+What You Now Have
+
+A personal advisory board that:
+
+Debates intelligently
+
+Improves you weekly
+
+Helps with business
+
+Handles health questions
+
+Preserves autonomy
+
+Encourages curiosity
+
+Maintains Kaizen rhythm
+
+Balanced.
+Disciplined.
+Expandable.
+
+(Power Progression Model)
+
+Power should be earned, not granted.
+
+If you give your council power too early, it becomes chaos with tools.
+If you never give it power, it becomes a think tank with no leverage.
+
+So we design this in levels of authority.
+
+Not all at once.
+
+OVERVIEW — The Power Progression Model
+
+You will implement authority in 4 tiers:
+
+Advisory Only
+
+Assisted Execution
+
+Bounded Autonomy
+
+Strategic Automation
+
+You are currently at Tier 1.
+
+You don’t jump tiers.
+You graduate.
+
+TIER 1 — Advisory (Months 0–2)
+
+Agents:
+
+Reason
+
+Debate
+
+Synthesize
+
+Recommend
+
+They cannot:
+
+Execute commands
+
+Modify system files
+
+Access external APIs
+
+Automate tasks
+
+Goal of Tier 1:
+Train the Executive to:
+
+Route properly
+
+Filter vague advice
+
+Produce realistic action sets
+
+Avoid over-correction
+
+Maintain Kaizen discipline
+
+You’re training structure and tone.
+
+Do not rush this phase.
+
+TIER 2 — Assisted Execution (Controlled Power)
+
+After ~2–3 months of stable usage:
+
+You selectively empower the Engineer only.
+
+Engineer gains:
+
+exec
+
+process
+
+limited apply_patch
+
+But only under this rule:
+
+Executive must explicitly request:
+
+“Engineer, draft command for approval.”
+
+You manually approve execution.
+
+No silent execution.
+
+This lets the council:
+
+Build scripts
+
+Analyze files
+
+Generate automation templates
+
+Create research tools
+
+Help with business modeling
+
+But you still press enter.
+
+TIER 3 — Bounded Autonomy (Scoped Authority)
+
+Only after proven stability.
+
+Now you allow:
+
+Engineer:
+
+Limited scheduled tasks (cron)
+
+Controlled script execution
+
+Log generation
+
+Financial analysis tools
+
+But with constraints:
+
+No external financial transactions
+
+No outbound messaging
+
+No file deletion
+
+No modification outside defined directories
+
+Power is sandboxed.
+
+OpenClaw supports sandbox and tool restrictions per agent.
+Engineer can have a more permissive tool policy than others.
+
+Builder, Ascetic, Gardener remain advisory.
+
+Executive still cannot execute system-level commands.
+
+TIER 4 — Strategic Automation (Earning Money)
+
+This is where things get interesting.
+
+Now your council can:
+
+Analyze real estate deals
+
+Run spreadsheet models
+
+Monitor market trends
+
+Scan business opportunities
+
+Generate reports
+
+Suggest investment filters
+
+You can eventually build:
+
+Deal scoring systems
+
+Lead ranking automation
+
+AI-assisted underwriting
+
+Skill monetization funnels
+
+But not before:
+
+You’ve proven the council produces good judgment.
+
+TRAINING REQUIREMENTS BEFORE POWER
+
+Before you escalate tiers, your council must demonstrate:
+
+8 consecutive weeks of structured weekly reviews
+
+No wild over-corrections
+
+Real improvements logged
+
+Stable tone (no grind spiral, no philosophical drift)
+
+Executive consistently limiting to 3 actions
+
+If it can’t govern calmly without power,
+it should not receive power.
+
+DESIGNING SAFE POWER
+
+When you do empower it, use these principles:
+
+Principle 1 — Executive Is the ONLY Operator
+
+No agent touches execution tools unless approved by USER.
+
+Principle 2 — Executive Must Explicitly Invoke
+
+Executive never self-activates tool use.
+
+Principle 3 — Approval Required
+
+You confirm before execution.
+
+Principle 4 — Directory Whitelisting
+
+Executive can only modify:
+
+~/.openclaw/workspace-executive/
+~/.openclaw/workspace-executive/shared/
+
+
+Nothing else.
+
+FUTURE MONEY PATH
+
+When mature, this system can:
+
+Evaluate flipping houses with deal models.
+
+Analyze rental comps.
+
+Simulate financing structures.
+
+Track savings and capital growth.
+
+Help you build digital tools to sell.
+
+But first it must: Improve YOU & ITSELF.
+
+Money-making AI built on unstable self-governance becomes risky fast.

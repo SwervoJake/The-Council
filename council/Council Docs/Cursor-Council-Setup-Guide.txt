@@ -1,0 +1,248 @@
+AI Agent Council Setup Guide
+
+Here’s a full, step-by-step setup plan for your Agent Council Infrastructure integrating all phases, models, agents, and council protocols into a coherent workflow you can implement directly. This consolidates all files and includes the extended values matrix and ledger features.
+
+Step-by-Step OpenClaw Council Setup Plan
+
+Step 1 — Manual Folder Setup
+Create the necessary directories for agents, shared memory, and logs:
+mkdir -p ~/.cursor/agents/neo/memory
+mkdir -p ~/.cursor/agents/shared
+touch ~/.cursor/agents/shared/constitution.md
+touch ~/.cursor/agents/shared/tasks.md
+touch ~/.cursor/agents/shared/learning_log.md
+touch ~/.cursor/agents/shared/decisions.md
+touch ~/.cursor/agents/shared/ledger.md
+
+
+Step 2 — Draft Constitution
+File: ~/.cursor/agents/shared/constitution.md
+Include:
+
+
+Purpose: Kaizen; Continuous, compounding growth in all life domains while preserving autonomy and long-term success.
+
+
+Authority: User is sovereign, Neo coordinates, Agents advise.
+
+
+Kaizen Laws: Small improvements compound, limit actions/session, automated weekly reflections, long-term stability prioritized.
+
+
+Step 3 — Create Agent Profiles
+Define JSON profiles for each agent, including values_matrix for structured conflicts.
+Example bruce.json:
+{
+  "name": "Bruce",
+  "role": "Strategist",
+  "core_function": "Financial literacy, credit, savings, long-term stability",
+  "model": "qwen-8b",
+  "values_matrix": {
+    "prime_directive": "Preservation of Capital & Long-term Stability",
+    "risk_tolerance": 2,
+    "priority": "Compound Interest"
+  },
+  "tools": { "allow": ["read", "write"], "deny": ["exec", "browser"] }
+}
+
+Other agents:
+
+
+Neo (Architect): Technical skill improvements, coding, projects, high-reward focus, medium risk tolerance.
+
+
+Cena (Guardian): Habit development & enforcement, health guidance, low risk tolerance.
+
+
+Luffy (Explorer): Curiosity, Spontaneity, creativity, philosophical exploration, high risk tolerance.
+
+
+Professor (Executive): Orchestrates council, mediates conflicts, synthesizes outputs, strongest reasoning model.
+
+
+Save profiles:
+~/.cursor/agents/{bruce.json, neo.json, cena.json, luffy.json, professor.json}
+
+
+Step 4 — Configure Workspaces
+mkdir -p ~/.cursor/workspace-executive/shared
+mkdir -p ~/.cursor/workspace-builder
+mkdir -p ~/.cursor/workspace-ascetic
+mkdir -p ~/.cursor/workspace-gardener
+mkdir -p ~/.cursor/workspace-engineer
+
+
+Step 5 — Load Models in Cursor
+Assign needed models. Example :
+AgentModelPurposeProfessorqwen-13bHigh-level synthesis, orchestrationBruceqwen-8bFinancial reasoning, actionable adviceNeoqwen-8bTechnical/project guidanceCenaqwen-7bHabit and health enforcementLuffyqwen-7bCreativity, exploration, philosophy
+
+Run sequentially unless your system can handle multiple models simultaneously.
+
+Step 7 — First Council Session
+
+Prompt Professor: "Professor, initiate council session. Topic: <your question>."
+Bruce: provide actionable financial steps.
+Neo: suggest skills/projects to support these steps.
+Cena: check for habit risks.
+Luffy: provide creative/philosophical input.
+Summarize 3 actionable items.
+
+Approve tasks before writing to tasks.md.
+
+Step 8 — Conflict Tracking: Professor’s Ledger
+After each session, Professor records:
+### [Date & Topic]
+**Consensus:** <agreed items>
+**Dissent:** <who disagreed & why>
+**Unresolved Tension:** <issues to revisit>
+**Executive Override:** <risk accepted by Executive>
+
+
+
+Ledger aids in tracking persistent disagreements.
+
+
+Review monthly to adjust agent values and prompts.
+
+
+
+Step 9 — Weekly Kaizen Ritual
+
+
+Executive queries agents for short input on all tracked metrics.
+
+
+Identify trends.
+
+
+Approve max 3 actionable improvements.
+
+
+Log in weekly_review.md.
+
+
+Update learning log with Luffy’s exploratory suggestions.
+
+
+
+Step 10 — Iterative Council Improvement
+
+
+Monthly review:
+
+
+Compare advice vs outcomes.
+
+
+Adjust agent weights, values_matrix, or prime directives.
+
+
+Capture lessons in decisions.md.
+
+
+
+
+Test value conflicts with scenarios to validate diversity in reasoning.
+
+
+
+Step 11 — Handling Any Domain Question
+Business Example: Flipping Houses
+
+
+Executive selects:
+
+
+Builder → financial viability
+
+
+Engineer → execution feasibility
+
+
+Ascetic → time/cost discipline
+
+
+Gardener → lifestyle impact
+
+
+
+
+Synthesizes recommendations, conflicts, and risk warning.
+
+
+Health Example: Chili Digestibility
+
+
+Executive selects:
+
+
+Ascetic → body reaction
+
+
+Gardener → diet sustainability
+
+
+Engineer → ingredient logic
+
+
+
+
+
+Step 12 — Power Progression Tiers
+Tier 1 (Advisory): Months 0–2, reasoning & recommendation only. No system commands, no automation.
+Tier 2 (Assisted Execution): Empower Engineer for draft command proposals; manual approval required.
+Tier 3 (Bounded Autonomy): Limited scheduled tasks, sandboxed execution.
+Tier 4 (Strategic Automation): Full AI-assisted business, finance, and technical analysis under safe guardrails.
+Guardrails:
+
+
+Only Engineer executes scripts.
+
+
+Executive explicitly invokes Engineer.
+
+
+Whitelisted directories only.
+
+
+Approval required for execution.
+
+
+
+Step 13 — Long-Term Evolution
+
+
+After 3–12 months:
+
+
+Engineer automates reporting.
+
+
+Add market research workflows.
+
+
+Build AI-assisted deal analysis tools.
+
+
+Develop automation experiments.
+
+
+
+
+Maintain 8-week stable Kaizen and decision logging before tier escalation.
+
+
+
+Step 14 — Future Monetization Path
+
+
+Use council to design businesses.
+
+
+Engineer builds automation tools.
+
+
+Package council as a self-governance and productivity system.
+
+
+Always prioritize personal improvement before monetization.
