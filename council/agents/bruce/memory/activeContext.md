@@ -1,4 +1,4 @@
-# Active Context – Neo
+# Active Context – Bruce
 
 ## Current Focus
 
